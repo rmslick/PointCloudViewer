@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Three.js Point Cloud from File</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+    <script src="https://cdn.rawgit.com/mrdoob/three.js/r134/examples/js/loaders/PLYLoader.js"></script>
+    <script src="https://cdn.rawgit.com/mrdoob/three.js/r134/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+      var container, camera, scene, renderer, controls;
+      var geometry, material, points;
+
+      init();
+      animate();
+
+      function init() {
+
+        container = document.createElement( 'div');
+        document.body.appendChild( container );
+
+        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.z = 10;
+
+        //controls = new THREE.OrbitControls( camera );
+
+        scene = new THREE.Scene();
+
+        var loader = new THREE.PLYLoader();
+        loader.load( 'https://raw.githubusercontent.com/UnaNancyOwen/Tutorials/master/tutorials/interactive_icp/monkey.ply' , function ( geometry ) {
+
+          var material = new THREE.PointsMaterial( { size: 2, color: 0xffffff } );
+          points = new THREE.Points( geometry, material );
+          scene.add( points );
+
+        } );
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        container.appendChild( renderer.domElement );
+
+        window.addEventListener( 'resize', onWindowResize, false );
+
+      }
+
+      function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+      }
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+
+        //controls.update();
+
+        renderer.render( scene, camera );
+
+      }
+
+    </script>
+  </body>
+</html>

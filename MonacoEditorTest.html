@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hello Monaco</title>
+  <script src="/home/rmslick/PointCloudBrowser/monaco-editor-0.38.0/package/min/vs/loader.js"></script>
+  <script>
+    require.config({ paths: { 'vs': '/home/rmslick/PointCloudBrowser/monaco-editor-0.38.0/package/min/vs' }});
+    require(['vs/editor/editor.main'], function() {
+      var editor = monaco.editor.create(document.getElementById('container'), {
+        value: 'Hello, world!',
+        language: 'plaintext'
+      });
+    });
+  </script>
+</head>
+<body>
+  <div id="container" style="height: 300px;"></div>
+</body>
+</html>

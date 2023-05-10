@@ -20,26 +20,6 @@
 		var geometry, material, points;
 		
 		var positions = [];
-		var colors = [];
-
-		var n = 1000, n2 = n / 2;
-		var d = 12, d2 = d / 2;
-
-		for ( var i = 0; i < n; i ++ ) {
-
-			var x = Math.random() * d - d2;
-			var y = Math.random() * d - d2;
-			var z = Math.random() * d - d2;
-
-			positions.push( x, y, z );
-
-			var r = Math.random();
-			var g = Math.random();
-			var b = Math.random();
-
-			colors.push( r, g, b );
-
-		}
 		var spheres = [];
 		init();
 		animate();
