@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Monaco Editor Example</title>
+    <style>
+      #editor {
+        width: 800px;
+        height: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="editor"></div>
+    <script src="/home/rmslick/PointCloudBrowser/monaco-editor-0.38.0/package/min/vs/loader.js"></script>
+    <script>
+      require.config({ paths: { 'vs': '/home/rmslick/PointCloudBrowser/monaco-editor-0.38.0/package/min/vs' }});
+      require(['vs/editor/editor.main'], function() {
+        monaco.languages.register({ id: 'python' });
+        monaco.languages.setMonarchTokensProvider('python', {
+          tokenizer: {
+            root: [
+              [/[a-z_$][\w$]*/, { token: 'identifier' }],
+              [/\d+\.\d+/, { token: 'number.float' }],
+              [/\d+/, { token: 'number' }],
+              [/"([^"\\]|\\.)*$/, { token: 'string.invalid', next: '@string' }],
+              [/"/, { token: 'string.quote', next: '@string' }],
+              [/'[^\\']'/, { token: 'string' }],
+            ],
+            string: [
+              [/[^\\"]+/, { token: 'string' }],
+              [/\\./, { token: 'string.escape' }],
+              [/"/, { token: 'string.quote', next: '@pop' }],
+            ],
+          },
+        });
+        monaco.languages.setLanguageConfiguration('python', {
+          brackets: [['(', ')'], ['[', ']'], ['{', '}']],
+          autoClosingPairs: [
+            { open: '(', close: ')' },
+            { open: '[', close: ']' },
+            { open: '{', close: '}' },
+            { open: "'", close: "'", notIn: ['string', 'comment'] },
+            { open: '"', close: '"', notIn: ['string', 'comment'] },
+          ],
+        });
+        monaco.editor.create(document.getElementById('editor'), {
+          value: 'print("Hello, world!")',
+          language: 'python',
+          theme: 'vs-dark',
+        });
+        
+      });
+    </script>
+  </body>
+</html>

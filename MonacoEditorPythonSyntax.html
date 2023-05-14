@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Monaco Editor - Python Sample</title>
+
+  <!-- Load the monaco-editor scripts -->
+  <script src="./monaco-editor-0.38.0/package/min/vs/loader.js"></script>
+  <script>
+    // Specify the paths for the monaco-editor scripts
+    window.MonacoEnvironment = {
+      getWorkerUrl: function (workerId, label) {
+        return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+          self.MonacoEnvironment = {
+            baseUrl: 'file:///home/rmslick/PointCloudBrowser/monaco-editor-0.38.0/package/min/'
+          };
+          importScripts('file:///home/rmslick/PointCloudBrowser/monaco-editor-0.38.0/package/min/vs/base/worker/workerMain.js');`
+        )}`;
+      }
+    };
+
+    // Load the monaco-editor scripts
+    require.config({ paths: { 'vs': './monaco-editor-0.38.0/package/min/vs' }});
+    require(['vs/editor/editor.main'], function () {
+      // Create a new editor instance
+      var editor = monaco.editor.create(document.getElementById('editor'), {
+        value: 'print("Hello, world!")',
+        language: 'python'
+      });
+
+      // Listen for changes to the editor's contents
+      editor.onDidChangeModelContent(function (event) {
+        // Get the current contents of the editor
+        var value = editor.getValue();
+
+        // Set the theme and language for the editor
+        monaco.editor.setModelLanguage(editor.getModel(), 'python');
+
+        // Colorize the contents of the editor
+        monaco.editor.colorize(value, 'python', {})
+          .then(function (result) {
+            // Apply the colorization to the editor's contents
+            editor.getModel().setValue(result);
+          });
+      });
+    });
+  </script>
+
+  <!-- Load the monaco-editor styles -->
+  <style>
+    #editor {
+      width: 800px;
+      height: 600px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Create a container for the editor -->
+  <div id="editor"></div>
+</body>
+
+</html>

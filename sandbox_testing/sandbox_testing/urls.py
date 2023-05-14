@@ -18,9 +18,13 @@ from django.contrib import admin
 from django.urls import path,include
 from django.urls import path, include
 from pcdprocessor.views import  sandbox
+from pcdprocessor.views import index
+from pcdprocessor.views import compile_code
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('pcdprocessor/', include('pcdprocessor.urls')),
     path('api/sandbox/', sandbox),
+    path('', index, name='index'),
+    path('compile/', compile_code, name='compile'),
 ]
 
