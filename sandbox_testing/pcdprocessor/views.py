@@ -53,14 +53,18 @@ def compile_code(request):
         user_session_id = request.session.session_key
         # Run the code in a subprocess and get the output
         cmd = ['python', '-c', code]
+        result = 1
         try:
             result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10, check=True)
             output = result.stdout.decode('utf-8')
+            return JsonResponse({'output': output,'error_code':result.returncode})
         except subprocess.CalledProcessError as e:
             output = e.stderr.decode('utf-8')
+            return JsonResponse({'output': output,'error_code':result})
         except subprocess.TimeoutExpired:
             output = 'Time limit exceeded'
+            return JsonResponse({'output': output,'error_code':result})
         except Exception as e:
             output = str(e)
         # Return the output as a JSON response
-        return JsonResponse({'output': output})
+            return JsonResponse({'output': output,'error_code':result})
