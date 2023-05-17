@@ -12,37 +12,43 @@ def hello(request):
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .sandbox import run_script
+from pcdprocessor.SceneInfo import *
+from pcdprocessor.global_session_dict import * 
+
 scenes = {}
 @api_view(['POST'])
 def sandbox(request):
     session_id = request.session.session_key
     print("Session id: ",session_id)
-    if session_id not in scenes:
-        scenes[session_id] = create_new_scene()
-    current_scene = scenes[session_id]
+    if session_id not in global_session_dict.keys():
+        s = Scene(session_id)
+        add_scene_info(session_id,s)
+    current_scene = get_scene_info(session_id)
     print(request.data)
     script = request.data.get('script')
     output = run_script(script)
     return Response(output)
 
 
-scenes = {}
 
 def index(request):
     if not request.session.session_key:
         request.session.save()
     session_id = request.session.session_key
-    if session_id not in scenes:
-        print("New user:", session_id)
-        scenes[session_id] = create_new_scene()
-    current_scene = scenes[session_id]
-    current_scene = scenes[session_id]
+    if session_id not in global_session_dict.keys():
+        s = Scene(session_id)
+        add_scene_info(session_id,s)
+        print("New user: ",session_id)
+    else:
+        print("Welcome back user: ",session_id)
+    current_scene = get_scene_info(session_id)
     return render(request, 'index.html')
 
 import subprocess
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+
 @csrf_exempt
 def compile_code(request):
     if request.method == 'POST':
@@ -51,6 +57,7 @@ def compile_code(request):
         code = request_json['code']
         # Get the user session ID
         user_session_id = request.session.session_key
+        
         # Run the code in a subprocess and get the output
         cmd = ['python', '-c', code]
         result = 1

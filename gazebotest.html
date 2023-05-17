@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EAPcOdT+2Oj1jQQTaJ2S/VauHz/42kG9u6AGuW9PQhW5c6dc5HjYrNM9H76wLsS2" crossorigin="anonymous">
+
+    <title>Gazebo Template</title>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Gazebo Template</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="#">Point Cloud 1</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Point Cloud 2</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Add Point Cloud</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9">
+          <div id="gazebo-viewer"></div>
+        </div>
+        <div class="col-md-3">
+          <h5>Properties</h5>
+          <hr>
+          <form>
+            <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="name" placeholder="Enter name">
+            </div>
+            <div class="mb-3">
+              <label for="color" class="form-label">Color</label>
+              <input type="color" class="form-control" id="color">
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-qK5FmFTLEtHlvLJXTc8jjpJ7fbp0p9FdO5zeuHnSNEAV+V6K8xxyZ40Tj1/RAgT/" crossorigin="anonymous"></script>
+  </body>
+</html>
