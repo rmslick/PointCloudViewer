@@ -2,6 +2,8 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import numpy as np
 
 def create_new_scene():
     return {}
@@ -43,6 +45,35 @@ def index(request):
         print("Welcome back user: ",session_id)
     current_scene = get_scene_info(session_id)
     return render(request, 'index.html')
+import open3d as o3d
+@csrf_exempt
+def upload_points(request):
+    print("Got points!")
+    if request.method == 'POST':
+        # Retrieve the points data from the request
+        data = json.loads(request.body)
+        points = data.get('points')
+        print(points)
+        # Process the points data and load into Open3D point cloud
+        # Convert the points data to a numpy array
+        points_np = np.array(points, dtype=np.float32)
+
+        # Reshape the array to Nx3 shape
+        points_np = points_np.reshape(-1, 3)
+
+        # Create an Open3D point cloud from the numpy array
+        point_cloud = o3d.geometry.PointCloud()
+        point_cloud.points = o3d.utility.Vector3dVector(points_np)
+
+
+        # Perform any additional operations on the point cloud as needed
+        # ...
+
+        # Return a response indicating the successful processing of the points
+        return JsonResponse({'message': 'Points uploaded successfully'})
+
+    # Return an error response for other HTTP methods
+    return JsonResponse({'error': 'Invalid request method'})
 
 import subprocess
 from django.http import JsonResponse

@@ -110,7 +110,8 @@
 			scene.add( axesHelper );
 
 			// Create a random number of spheres with random positions and colors
-			const numSpheres = Math.floor( Math.random() * 100) + 1;
+			/*
+      const numSpheres = Math.floor( Math.random() * 100) + 1;
 			for (let i = 0; i < numSpheres; i++) {
 				const geometry = new THREE.SphereGeometry(0.5, 32, 32);
 				var c = 0xffffff;
@@ -127,7 +128,7 @@
 				scene.add(sphere);
 				spheres.push(sphere);
 			}
-
+      */
 			renderer = new THREE.WebGLRenderer( { antialias: true } );
 			renderer.setPixelRatio( window.devicePixelRatio );
 			renderer.setSize( window.innerWidth, window.innerHeight );
@@ -160,7 +161,99 @@
       }
 
 	</script>
+  <script>
+    // Add an event listener to the container element for file drag and drop
+    container.addEventListener('dragover', handleDragOver, false);
+    container.addEventListener('drop', handleFileDrop, false);
 
+    function handleDragOver(event) {
+      event.stopPropagation();
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'copy'; // Set drop effect to copy
+    }
+
+    function handleFileDrop(event) {
+      event.stopPropagation();
+      event.preventDefault();
+
+      const files = event.dataTransfer.files;
+      if (files.length > 0) {
+        const file = files[0];
+        const reader = new FileReader();
+        reader.addEventListener('load', handleFileLoad, false);
+        reader.readAsText(file); // Read the file as text
+      }
+    }
+
+    function handleFileLoad(event) {
+    const data = event.target.result; // The loaded file data
+    // Process the point cloud data here
+
+    // Example: Create a geometry and material for the point cloud
+    const geometry = new THREE.BufferGeometry();
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+
+    // Example: Parse the point cloud data and populate the geometry
+    const positions = []; // Array to hold the point positions
+    // Parse the data and extract the point positions into the positions array
+    // Assuming the point cloud data is in a specific format, adjust the parsing logic accordingly
+    // Example:
+    const lines = data.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+        const values = lines[i].trim().split(' ');
+        const x = parseFloat(values[0]);
+        const y = parseFloat(values[1]);
+        const z = parseFloat(values[2]);
+        positions.push(x, y, z);
+    }
+    // Set the positions as an attribute of the geometry
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+    // Create spheres based on the positions
+    const radius = 0.1; // Adjust the radius of the spheres as needed
+    const sphereGeometry = new THREE.SphereGeometry(radius, 32, 32);
+    const spheres = new THREE.Group();
+
+    for (let i = 0; i < positions.length; i += 3) {
+        const sphere = new THREE.Mesh(sphereGeometry, material);
+        sphere.position.set(positions[i], positions[i + 1], positions[i + 2]);
+        spheres.add(sphere);
+    }
+    // Add ambient light to the scene
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Adjust the intensity as needed
+    scene.add(ambientLight);
+
+    // Add directional light to the scene
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Adjust the intensity as needed
+    directionalLight.position.set(0, 1, 0); // Set the position of the light
+    scene.add(directionalLight);
+    // Add the spheres to the scene
+    scene.add(spheres);
+    sendPointsToServer(positions);
+}
+function sendPointsToServer(points) {
+  const url = '/upload_points/';
+  const data = { points: points };
+
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      // Handle the response from the server
+      console.log(data);
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+}
+
+</script>
     
     <script src="{% static 'monaco-editor-0.38.0/package/min/vs/loader.js' %}"></script>
     <script>
