@@ -45,6 +45,20 @@ def index(request):
         print("Welcome back user: ",session_id)
     current_scene = get_scene_info(session_id)
     return render(request, 'index.html')
+
+def rob(request):
+    if not request.session.session_key:
+        request.session.save()
+    session_id = request.session.session_key
+    if session_id not in global_session_dict.keys():
+        s = Scene(session_id)
+        add_scene_info(session_id,s)
+        print("New user: ",session_id)
+    else:
+        print("Welcome back user: ",session_id)
+    current_scene = get_scene_info(session_id)
+    return render(request, 'rob.html')
+
 import open3d as o3d
 @csrf_exempt
 def upload_points(request):
@@ -64,7 +78,8 @@ def upload_points(request):
         # Create an Open3D point cloud from the numpy array
         point_cloud = o3d.geometry.PointCloud()
         point_cloud.points = o3d.utility.Vector3dVector(points_np)
-
+        session_id = request.session.session_key
+        add_point_cloud(session_id,point_cloud)
 
         # Perform any additional operations on the point cloud as needed
         # ...
