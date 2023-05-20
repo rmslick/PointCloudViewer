@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Three.js Point Cloud</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #editor {
+            width: 100%;
+            height: 100%;
+        }
+        .point-cloud-item {
+            cursor: pointer;
+        }
+        .point-cloud-item.active {
+            background-color: #f8f9fa;
+        }
+        .point-cloud-details {
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Left-hand pane -->
+            <div class="col-4">
+                <nav class="navbar navbar-light bg-light">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" href="#">
+                            <img src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="30" height="24" class="d-inline-block align-text-top">
+                            Bootstrap
+                        </a>
+                        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Script</button>
+                    </div>
+                </nav>
+                <div class="justify-content-md-end">
+                    <div class="offcanvas offcanvas-end w-50" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+                        <div class="offcanvas-header">
+                            <h5 id="offcanvasRightLabel">Offcanvas right</h5>
+                            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            <!-- Point cloud selection code -->
+                            <h5>Select Point Cloud</h5>
+                            <div class="list-group" id="pointCloudList">
+                                <a href="#" class="list-group-item list-group-item-action point-cloud-item">Point Cloud 1</a>
+                                <a href="#" class="list-group-item list-group-item-action point-cloud-item">Point Cloud 2</a>
+                                <a href="#" class="list-group-item list-group-item-action point-cloud-item">Point Cloud 3</a>
+                            </div>
+                            <h5>Point Cloud Details</h5>
+                            <div id="pointCloudDetails" class="point-cloud-details">
+                                <p>Select a point cloud to view its details.</p>
+                            </div>
+                            <!-- End of point cloud selection code -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main container -->
+            <div class="col-8">
+                <div id="container"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Point cloud data for demonstration
+    const pointClouds = [
+        { name: 'Point Cloud 1', properties: { color: 'Red', size: 1000 } },
+        { name: 'Point Cloud 2', properties: { color: 'Green', size: 500 } },
+        { name: 'Point Cloud 3', properties: { color: 'Blue', size: 800 } }
+    ];
+
+    // Event listener for point cloud selection
+    $('#pointCloudList .point-cloud-item').click(function() {
+        // Remove 'active' class from all items
+        $('#pointCloudList .point-cloud-item').removeClass('active');
+
+        // Add 'active' class to the selected item
+        $(this).addClass('active');
+
+        // Get the index of the selected point cloud
+        const index = $(this).index();
+
+        // Get the details of the selected point cloud
+        const pointCloud = pointClouds[index];
+
+        // Update the point cloud details
+        const details = `
+            <p>Name: ${pointCloud.name}</p>
+            <p>Color: ${pointCloud.properties.color}</p>
+            <p>Size: ${pointCloud.properties.size}</p>
+        `;
+        $('#pointCloudDetails').html(details);
+
+        // Show or hide the details section based on selection
+        if ($(this).hasClass('active')) {
+            $('#pointCloudDetails').show();
+        } else {
+            $('#pointCloudDetails').hide();
+        }
+    });
+</script>
+</body>
+</html>
