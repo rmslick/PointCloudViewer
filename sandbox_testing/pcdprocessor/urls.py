@@ -9,5 +9,4 @@ urlpatterns = [
     path('rob/', rob, name='rob'),
     path('compile/', views.compile_code, name='compile'),
     path('upload_points/', views.upload_points, name='upload_points'),
-
 ]

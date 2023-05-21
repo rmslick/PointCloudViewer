@@ -44,7 +44,20 @@ def index(request):
     else:
         print("Welcome back user: ",session_id)
     current_scene = get_scene_info(session_id)
-    return render(request, 'index.html')
+    # Serialize the scene object to JSON
+    scene_json = json.dumps({
+        'session_id': current_scene.session_id,
+        'point_clouds': current_scene.point_cloud_points,
+        'point_cloud_count': current_scene.point_cloud_count,
+        'ambient_light': current_scene.ambient_light,
+        'directional_light': current_scene.directional_light,
+    })
+    
+    # Pass the scene JSON to the template
+    context = {
+        'scene_json': scene_json,
+    }
+    return render(request, 'index.html',context)
 
 def rob(request):
     if not request.session.session_key:
@@ -67,6 +80,8 @@ def upload_points(request):
         # Retrieve the points data from the request
         data = json.loads(request.body)
         points = data.get('points')
+        directional_light = data.get('directional_light')
+        ambient_light = data.get('ambient_light')
         print(points)
         # Process the points data and load into Open3D point cloud
         # Convert the points data to a numpy array
@@ -78,12 +93,23 @@ def upload_points(request):
         # Create an Open3D point cloud from the numpy array
         point_cloud = o3d.geometry.PointCloud()
         point_cloud.points = o3d.utility.Vector3dVector(points_np)
+        
         session_id = request.session.session_key
-        add_point_cloud(session_id,point_cloud)
-
-        # Perform any additional operations on the point cloud as needed
-        # ...
-
+        if(session_id != None):
+            add_point_cloud(session_id,point_cloud)
+            add_directional_light(session_id,directional_light)
+            add_ambient_light(session_id,ambient_light)
+        else:
+            if not request.session.session_key:
+                request.session.save()
+            session_id = request.session.session_key
+            if session_id not in global_session_dict.keys():
+                s = Scene(session_id)
+                add_scene_info(session_id,s)
+                print("New user: ",session_id)
+                add_point_cloud(session_id,point_cloud)
+                add_directional_light(session_id,directional_light)
+                add_ambient_light(session_id,ambient_light)
         # Return a response indicating the successful processing of the points
         return JsonResponse({'message': 'Points uploaded successfully'})
 
