@@ -242,11 +242,13 @@ function handleFileLoad(event) {
 function sendSceneToServer(points,dLight,aLight) {
   const url = '/upload_points/';
   const data = { points: points, directional_light: {'color':dLight.color,'intensity': dLight.intensity}, ambient_light: {'color':aLight.color,'intensity': aLight.intensity} };
-
+  const csrftoken = sessionId;
+  console.log("Cookie:"+csrftoken);
   fetch(url, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
+    'X-CSRFToken': csrftoken
   },
   body: JSON.stringify(data),
   })
@@ -259,5 +261,11 @@ function sendSceneToServer(points,dLight,aLight) {
     // Handle any errors that occurred during the request
     console.error(error);
   });
+}
+
+// Helper function to retrieve the CSRF token from the cookie
+function getCookie(name) {
+  const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return cookieValue ? cookieValue.pop() : '';
 }
 

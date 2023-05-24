@@ -22,27 +22,17 @@ scenes = {}
 def sandbox(request):
     session_id = request.session.session_key
     print("Session id: ",session_id)
-    if session_id not in global_session_dict.keys():
-        s = Scene(session_id)
-        add_scene_info(session_id,s)
-    current_scene = get_scene_info(session_id)
+    init_global_scene(session_id)
     print(request.data)
     script = request.data.get('script')
     output = run_script(script)
     return Response(output)
 
-
-
 def index(request):
     if not request.session.session_key:
         request.session.save()
     session_id = request.session.session_key
-    if session_id not in global_session_dict.keys():
-        s = Scene(session_id)
-        add_scene_info(session_id,s)
-        print("New user: ",session_id)
-    else:
-        print("Welcome back user: ",session_id)
+    init_global_scene(session_id)
     current_scene = get_scene_info(session_id)
     # Serialize the scene object to JSON
     scene_json = json.dumps({
@@ -52,7 +42,8 @@ def index(request):
         'ambient_light': current_scene.ambient_light,
         'directional_light': current_scene.directional_light,
     })
-    
+    # Open the file in write mode and write the dictionary as JSON
+
     # Pass the scene JSON to the template
     context = {
         'scene_json': scene_json,
@@ -63,13 +54,15 @@ def rob(request):
     if not request.session.session_key:
         request.session.save()
     session_id = request.session.session_key
-    if session_id not in global_session_dict.keys():
-        s = Scene(session_id)
-        add_scene_info(session_id,s)
-        print("New user: ",session_id)
-    else:
-        print("Welcome back user: ",session_id)
-    current_scene = get_scene_info(session_id)
+    '''
+        if session_id not in global_session_dict.keys():
+            s = Scene(session_id)
+            add_scene_info(session_id,s)
+            print("New user: ",session_id)
+        else:
+            print("Welcome back user: ",session_id)
+        current_scene = get_scene_info(session_id)
+    '''
     return render(request, 'rob.html')
 
 import open3d as o3d
@@ -103,13 +96,11 @@ def upload_points(request):
             if not request.session.session_key:
                 request.session.save()
             session_id = request.session.session_key
-            if session_id not in global_session_dict.keys():
-                s = Scene(session_id)
-                add_scene_info(session_id,s)
-                print("New user: ",session_id)
-                add_point_cloud(session_id,point_cloud)
-                add_directional_light(session_id,directional_light)
-                add_ambient_light(session_id,ambient_light)
+            init_global_scene(session_id)
+            print("New user: ",session_id)
+            add_point_cloud(session_id,point_cloud)
+            add_directional_light(session_id,directional_light)
+            add_ambient_light(session_id,ambient_light)
         # Return a response indicating the successful processing of the points
         return JsonResponse({'message': 'Points uploaded successfully'})
 
@@ -120,22 +111,31 @@ import subprocess
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-
+def parse_code(code):
+    split_code = code.split('\n')
+    code_string = ';'.join( split_code )
+    code_string += ';'
+    return code_string
 @csrf_exempt
 def compile_code(request):
     if request.method == 'POST':
+        #with open("test2.json", "w") as json_file:
+        #    json.dump(global_session_dict, json_file)
         # Get the code content from the request body
         request_json = (json.loads(request.body))
         code = request_json['code']
         # Get the user session ID
         user_session_id = request.session.session_key
-        
+        print("[INFO] Compiling for Session id: ",user_session_id)
         # Run the code in a subprocess and get the output
-        cmd = ['python', '-c', code]
+        code = parse_code(code)
+        cmd = ['python', '-c', 'import sys;sys.path.append("./pcdprocessor/API/");from PointCloudAPI import *;set_session_id("'+ str(user_session_id) +'");'+str(code)]
         result = 1
         try:
+            print(cmd)
             result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10, check=True)
             output = result.stdout.decode('utf-8')
+            print(output)
             return JsonResponse({'output': output,'error_code':result.returncode})
         except subprocess.CalledProcessError as e:
             output = e.stderr.decode('utf-8')
