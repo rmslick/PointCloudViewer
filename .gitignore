@@ -1,0 +1,4 @@
+__pycache__/
+.vscode/
+user_sessions/*.json
+__pycache__
