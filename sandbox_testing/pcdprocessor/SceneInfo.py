@@ -77,7 +77,8 @@ class Scene:
         save_path = os.path.join(os.path.join(pcdprocessorpath,'user_sessions'),filename)
         with open(save_path, 'w') as file:
             json.dump(scene_dict, file)
-
+        # change to the scene has been made, notify the user
+        
     def load_scene_from_file(self,filename):
         filename = str( filename )
         pcdprocessorpath = os.path.join(os.getcwd(),'pcdprocessor')

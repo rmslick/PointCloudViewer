@@ -135,8 +135,10 @@ def compile_code(request):
             print(cmd)
             result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10, check=True)
             output = result.stdout.decode('utf-8')
-            print(output)
-            return JsonResponse({'output': output,'error_code':result.returncode})
+            save_path = os.path.join(os.path.join('pcdprocessor', 'user_sessions' ),str(user_session_id)+'.json')
+            with open(save_path, 'r') as file:
+                scene_dict = json.load(file)
+            return JsonResponse({'output': output,'error_code':result.returncode,'scene':scene_dict})
         except subprocess.CalledProcessError as e:
             output = e.stderr.decode('utf-8')
             return JsonResponse({'output': output,'error_code':result})

@@ -15,7 +15,7 @@ def get_file_names(directory):
 def init_global_scene(session_id):
     global global_session
     dir = os.path.join(os.path.join(os.getcwd(),'pcdprocessor'),'user_sessions')
-    fnames = get_file_names("/home/rmslick/PointCloudBrowser/sandbox_testing/pcdprocessor/user_sessions/")
+    fnames = get_file_names( dir )
     #print(fnames)
     if str(session_id) in fnames:
         return Scene().load_scene_from_file(str(session_id)+'.json')
