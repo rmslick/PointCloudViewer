@@ -29,16 +29,40 @@ class PointCloud:
         self.scene = None
         dir = os.path.join(os.path.join(os.getcwd(),'pcdprocessor'),'user_sessions')
         fnames = get_file_names( dir )
-        print(fnames)
-        self.point_cloud = None
+        
+        self._point_cloud = None
         if str(session_id) in fnames:
-            print("Made it into load scenefor ",session_id)
+            self.log("Made it into load scenefor "+session_id)
             self.scene = Scene()
             self.scene.load_scene_from_file(str(session_id)+'.json')
+            
             self.point_cloud = self.scene.point_clouds[str(self.pointcloud_id)]
         else:
             self.global_session = Scene(session_id)
+        self.log("Constructed session with sessionid: "+str(session_id)+'\n')
         #return fnames
+    @property
+    def point_cloud(self):
+        return self._point_cloud
+    @point_cloud.setter
+    def point_cloud(self, value):
+        self.log("Checking in")
+        #self.log(str((np.asarray(self.point_cloud.points).tolist())))
+        self.log('\n')
+        self.log(str((np.asarray(value.points).tolist())))
+        
+        self._point_cloud = value
+        self.on_point_cloud_change()
+    def on_point_cloud_change(self):
+        # This method will be called whenever self.point_cloud changes
+        # You can perform any necessary actions here
+        self.log("Pointcloud state changed\n")
+        print("Point cloud changed:", self._point_cloud)
+        # set the change to the pontcloud in scene
+        self.scene.point_clouds[self.pointcloud_id] = self.point_cloud
+        self.scene.point_cloud_points[self.pointcloud_id] = np.asarray(self.point_cloud.points).tolist()
+        self.scene.save_scene_to_file()
+        #self.log("Saved to file after rotate\n")
     def log_api(self):
         t = open("test.txt",'w')
         t.write(get_session_id()+'\n')
@@ -57,6 +81,9 @@ class PointCloud:
         return self.point_cloud.get_center()
     def get_oriented_bounding_box(self,pointcloud):
         return pointcloud.get_oriented_bounding_box()
-
     def rotate(self,R):
-        return 
+        self.log("Rotating\n")
+        self.point_cloud = self.point_cloud.rotate(R)
+        self.log(str((np.asarray(self.point_cloud.points).tolist())))
+        
+        

@@ -72,7 +72,7 @@ class Scene:
             scene_dict['point_clouds'][key] = points_array.tolist()
         # Convert point clouds to NumPy arrays
         for key, point_cloud in self.point_cloud_points.items():
-            scene_dict['point_clouds'][key] = points_array.tolist()
+            scene_dict['point_cloud_points'][key] = points_array.tolist()
         pcdprocessorpath = os.path.join(os.getcwd(),'pcdprocessor')
         save_path = os.path.join(os.path.join(pcdprocessorpath,'user_sessions'),filename)
         with open(save_path, 'w') as file:
@@ -86,7 +86,7 @@ class Scene:
         with open(save_path, 'r') as file:
             scene_dict = json.load(file)
 
-        session_id = scene_dict['session_id']
+        self.session_id = scene_dict['session_id']
         point_clouds = {}
         point_cloud_points = scene_dict['point_cloud_points']
         point_cloud_count = scene_dict['point_cloud_count']
