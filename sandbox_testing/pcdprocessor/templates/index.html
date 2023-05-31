@@ -136,6 +136,10 @@
         console.log(data.output);
         if(data.error_code == 0)
         {
+          
+          console.log(data.scene.point_clouds);
+          //console.log(data.scene.point_clouds);
+          update_scene(data.scene);
           showNotification('Compilation successful!', 'success');
         }
         else{  

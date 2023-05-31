@@ -46,10 +46,10 @@ class PointCloud:
         return self._point_cloud
     @point_cloud.setter
     def point_cloud(self, value):
-        self.log("Checking in")
+        #self.log("Checking in")
         #self.log(str((np.asarray(self.point_cloud.points).tolist())))
-        self.log('\n')
-        self.log(str((np.asarray(value.points).tolist())))
+        #self.log('\n')
+        #self.log(str((np.asarray(value.points).tolist())))
         
         self._point_cloud = value
         self.on_point_cloud_change()
@@ -82,8 +82,15 @@ class PointCloud:
     def get_oriented_bounding_box(self,pointcloud):
         return pointcloud.get_oriented_bounding_box()
     def rotate(self,R):
-        self.log("Rotating\n")
+        self.log("Rotating before\n")
+        self.log(str((np.asarray(self.point_cloud.points).tolist())))
         self.point_cloud = self.point_cloud.rotate(R)
+        self.log("Rotating after:\n")
         self.log(str((np.asarray(self.point_cloud.points).tolist())))
         
-        
+    def translate(self,T,relative=True):
+        self.point_cloud = self.point_cloud.translate(T,relative)
+
+    def transform(self, T):
+        self.point_cloud = self.point_cloud.transform(T)
+    

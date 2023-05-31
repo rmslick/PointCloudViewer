@@ -1,11 +1,32 @@
 
 var container, camera, scene, renderer, controls;
 var geometry, material, points;
-
+const addedSpheres = {};
+var point_cloud_count = 0;
 var positions = [];
+const pointCloudsAll = [];
 var spheres = [];
 init();
 animate();
+function update_scene(scene_in)
+{
+  console.log("Updating scene..."+typeof scene_in.point_clouds);
+  // iterate and update pointclouds
+  Object.entries(scene_in.point_clouds).forEach(([key, value]) => {
+    //console.log("Total pcds"+scene.point_clouds[key].length);
+    //for(var i = 0; i < scene.point_clouds[key].length ; i++)
+    //{
+      //console.log("Cloud: "+i);
+      // extract points
+      point_cloud_points = create_point_cloud_from_points(value);
+      point_cloud_points.name = parseInt(key);
+      // update the scene for this key
+      assign_point_cloud_from_scene(key,point_cloud_points);
+  
+    //}
+  });
+
+}
 function set_ambient_lighting(ambient_light)
 {
   // Add ambient light to the scene
@@ -20,6 +41,41 @@ function set_directional_lighting(directional_light)
   const directionalLight = new THREE.DirectionalLight(directional_light.color, directional_light.intensity); // Adjust the intensity as needed
   directionalLight.position.set(0, 1, 0); // Set the position of the light
   scene.add(directionalLight);
+}
+function create_point_cloud_from_points(point_cloud)
+{
+  console.log("Creating pointcloud...")
+    // Example: Create a geometry and material for the point cloud
+    const geometry = new THREE.BufferGeometry();
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+
+    // Example: Parse the point cloud data and populate the geometry
+    const positions = []; // Array to hold the point positions
+    // Parse the data and extract the point positions into the positions array
+    // Assuming the point cloud data is in a specific format, adjust the parsing logic accordingly
+    // Example:
+    
+    for (let i = 0; i < point_cloud.length; i++) {
+        var x = point_cloud[i][0];
+        var y = point_cloud[i][1];
+        var z = point_cloud[i][2];
+        positions.push(x, y, z);
+        console.log(x+","+y+","+z);
+    }
+    // Set the positions as an attribute of the geometry
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+    // Create spheres based on the positions
+    const radius = 0.1; // Adjust the radius of the spheres as needed
+    const sphereGeometry = new THREE.SphereGeometry(radius, 32, 32);
+    const spheres = new THREE.Group();
+
+    for (let i = 0; i < positions.length; i += 3) {
+        const sphere = new THREE.Mesh(sphereGeometry, material);
+        sphere.position.set(positions[i], positions[i + 1], positions[i + 2]);
+        spheres.add(sphere);
+    }
+    return spheres;
 }
 function add_point_cloud_to_scene(point_cloud)
 {
@@ -55,8 +111,14 @@ function add_point_cloud_to_scene(point_cloud)
         sphere.position.set(positions[i], positions[i + 1], positions[i + 2]);
         spheres.add(sphere);
     }
-
+    //unique ID
+    spheres.name = point_cloud_count;
+    console.log("[INFO] POINTCLOUD NAME"+spheres.name)
+    addedSpheres[point_cloud_count] = spheres;
+    pointCloudsAll.push({ id: point_cloud_count, pointCloud: spheres });
+    point_cloud_count = point_cloud_count + 1;
     // Add the spheres to the scene
+    
     scene.add(spheres);
 }
 function load_scene(data,point_cloud_count)
@@ -71,6 +133,75 @@ function load_scene(data,point_cloud_count)
       add_point_cloud_to_scene(data[i]);
   }
 
+}
+function scene_traversal_example(search_id)
+{
+  // Traverse the scene graph to find a point cloud by a specific property
+  let pointCloud1;
+  scene.traverse((object) => {
+    if (object.userData && object.userData.type === 'PointCloud' && object.userData.id === search_id) {
+      pointCloud1 = object;
+    }
+  });
+  return pointCloud1;
+}
+function removeAllPointsFromScene(group) {
+  while (group.children.length > 0) {
+    const child = group.children[0];
+    group.remove(child);
+    // Optionally, you can dispose of the child's geometry and material
+    child.geometry.dispose();
+    child.material.dispose();
+  }
+}
+function logGroupPoints(group) {
+  const points = [];
+  
+  // Iterate over the children of the group
+  group.children.forEach(child => {
+    if (child instanceof THREE.Mesh) {
+      // Access the position of each mesh
+      const position = child.position;
+      const point = [position.x, position.y, position.z];
+      points.push(point);
+    }
+  });
+
+  console.log('Group Points:', points);
+}
+function assign_point_cloud_from_scene(index,updatedPointCloud) {
+  const groupName = parseInt(index) ; // The name of the desired point cloud group
+  const pointCloudGroup = scene.getObjectByName(groupName);
+  
+  scene.traverse(object => {
+    // Check if the object has a name
+    console.log(object.name);
+    //if (object.name) {
+    //  console.log(object.name);
+    //}
+  });
+  
+  if (pointCloudGroup) {
+      console.log("Updating...");
+      console.log(updatedPointCloud);
+      // Remove the existing point cloud group from the scene
+      scene.remove(pointCloudGroup);
+      removeAllPointsFromScene(pointCloudGroup);
+      // Create a new point cloud group with updated data
+      //const updatedPointCloud = createUpdatedPointCloud(); // Your code to create the updated point cloud
+  
+      // Assign the unique name to the new point cloud group
+      updatedPointCloud.name = groupName;
+      //console.log(updatedPointCloud.positions);
+      // Store the new point cloud group or use it directly for further manipulation
+  
+      // Add the new point cloud group to the scene
+      logGroupPoints(updatedPointCloud);
+      scene.add(updatedPointCloud);
+  }
+  else{
+    console.log("NUNYABUSINESS")
+  }
 }
 function showNotification(message, type = 'info') {
   const notificationContainer = document.getElementById('notification-container');
@@ -114,6 +245,7 @@ function init() {
   scene.background = new THREE.Color( 0x050505 );
 
   // add an axis with visible origin
+  // x-axis (red), y-axis (green), and z-axis (blue)
   var axesHelper = new THREE.AxesHelper(100);
   scene.add( axesHelper );
 
@@ -236,6 +368,8 @@ function handleFileLoad(event) {
     directionalLight.position.set(0, 1, 0); // Set the position of the light
     scene.add(directionalLight);
     // Add the spheres to the scene
+    spheres.name = point_cloud_count;
+    point_cloud_count = point_cloud_count + 1;
     scene.add(spheres);
     sendSceneToServer(positions,directionalLight,ambientLight);
 }
